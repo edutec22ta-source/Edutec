@@ -10,20 +10,31 @@ html {
 }
 
 
-body {
-     min-height: 100vh;
-    font-family: Arial, Helvetica, sans-serif;
-    color: white;
-
-    background:
-        linear-gradient(rgba(0, 15, 25, 0.55), rgba(0, 8, 15, 0.85)),
-        url("./imagens/baleia1.jpg");
-
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px 60px 20px;
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: 100% auto;
+    background-attachment: fixed; 
 }
 
+body {
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+    background-color: #0d325c; 
+    
+    background-image: 
+        linear-gradient(to bottom, rgba(0, 15, 25, 0.4) 30%, #02080f 75%),
+        url("./imagens/baleia1.jpg");
+    
+    background-size: 100% auto; 
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
 
 .header {
     height: 55px;
@@ -75,14 +86,11 @@ body > h1::after {
     letter-spacing: -1px;
     text-transform: none;
 }
-
 #perguntas-iniciais {
-    width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
-
-    margin-bottom: 35px;
+    gap: 30px;
+    margin-bottom: 40px;
 }
 
 #perguntas-iniciais > div {
@@ -103,49 +111,91 @@ body > h1::after {
         0 8px 25px rgba(0, 160, 200, 0.15);
 }
 
-#perguntas-iniciais img {
+#perguntas-iniciais img, #perguntas_secundárias img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
-    max-width: 100%
+    opacity: 0.45;
+    transition: transform 0.4s ease;
+}
 
-    
+#perguntas-iniciais div:hover img, #perguntas_secundárias div:hover img {
+    transform: scale(1.03);
 }
 
 #perguntas-iniciais h3 {
     position: absolute;
-    left: 50%;
-    bottom: 42px;
-    transform: translateX(-50%);
-    width: 90%;
-    text-align: center;
-    font-size: 10px;
-    font-weight: normal;
-    color: white;
-    text-shadow: 0 2px 5px black;
+    bottom: 75px;
+    left: 25px;
+    right: 25px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+    z-index: 2;
 }
 
-#perguntas-iniciais button {
+button {
     position: absolute;
-    left: 50%;
-    bottom: 10px;
-    transform: translateX(-50%);
-    width: 80%;
-    height: 22px;
-    color: #00bcd4;
-    background: rgba(3, 25, 36, 0.85);
-    border: 1px solid #008da8;
-    font-size: 8px;
+    bottom: 20px;
+    left: 25px;
+    width: calc(100% - 50px);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #6fb0cc;
+    padding: 11px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: 0.3s;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    z-index: 2;
 }
 
-#perguntas-iniciais button:hover {
-    background: #007d94;
-    color: white;
-    box-shadow: 0 0 10px rgba(0, 220, 255, 0.4);
+button:hover {
+    background: rgba(111, 176, 204, 0.2);
+    border-color: #6fb0cc;
+    color: #ffffff;
 }
+
+#div-oq-é-bio, #div-preservaçao {
+    position: relative;
+    height: 250px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #040f21;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+
+#perguntas_secundárias {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 5px;
+    background: rgba(2, 7, 18, 0.6);
+    margin-bottom: 70px;
+    gap: 30px;
+}
+
+#adentrando_profundezas, #bioluminescencia {
+    position: relative;
+    height: 420px;
+    overflow: hidden;
+    background: #030d1c;
+}
+
+
+#perguntas_secundárias h3 {
+    position: absolute;
+    bottom: 75px;
+    left: 30px;
+    right: 30px;
+    font-size: 22px;
+    font-weight: 600;
+    z-index: 2;
+}
+
 
 
 
@@ -191,8 +241,6 @@ body > h1::after {
     border: 1px solid rgba(0, 100, 160, 0.08);
     transition: 0.3s;
 }
-
-
 
 
 
