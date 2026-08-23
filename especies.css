@@ -150,9 +150,16 @@ main {
   font-weight: 400;
 }
 
-/* Botões dos cards */
-.btn-action {
-  display: inline-block;
+/* Estilização do link que envolve o botão */
+.card-body a {
+  width: 100%;
+  text-decoration: none;
+  display: block;
+}
+
+
+.card-body button {
+  display: block;
   width: 100%;
   padding: 10px 0;
   background-color: transparent;
@@ -161,14 +168,22 @@ main {
   border-radius: 2px;
   font-family: monospace;
   font-size: 13px;
+  font-weight: 600;
   text-align: center;
   cursor: pointer;
-  text-decoration: none;
-  transition: background-color 0.2s, color 0.2s;
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
 }
 
-.btn-action:hover {
-  background-color: rgba(0, 213, 232, 0.1);
+
+.card-body button:hover {
+  background-color: rgba(0, 213, 232, 0.15);
+  color: #ffffff;
+  border-color: #00d5e8;
+}
+
+/* Efeito de clique no botão */
+.card-body button:active {
+  transform: scale(0.98);
 }
 
 /* --- RESPONSIVIDADE (PARA CELULAR E TABLET) --- */
