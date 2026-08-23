@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submarino</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #061b2b;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        #jogo {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(#087ca1, #003b5c);
+        }
+
+        #interface {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px 20px;
+            border-radius: 10px;
+        }
+
+        #submarino {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .objeto {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .peixe {
+            position: absolute;
+            width: 35px;
+            height: 35px;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .bolha {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        object-fit: contain;
+        user-select: none;
+        pointer-events: none;
+        }
+        
+        #gameOver {
+            position: absolute;
+            inset: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.75);
+            color: white;
+            z-index: 200;
+        }
+
+        #gameOver h1 {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        #gameOver p {
+            font-size: 30px;
+            margin-bottom: 25px;
+        }
+
+        #reiniciar, #sair {
+        padding: 15px 30px;
+        border: none;
+        border-radius: 10px;
+        background: #00aaff;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        }
+
+        #reiniciar:hover, #sair:hover  {
+            background: #0088cc;
+        }
+
+        #home {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            background: #00aaff;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <a href="./index.html">
+        <button id="home">Voltar</button>
+    </a>
+
+    <div id="jogo">
+
+        <div id="interface">
+            Pontos: <span id="pontos">0</span>
+            <br>
+            Tempo: <span id="tempo">30</span>
+        </div>
+
+        <img id="submarino" src="./jogo/submarino.webp">
+
+        <div id="gameOver">
+            <h1>Fim de jogo!</h1>
+            <p>Pontuação: <span id="pontuacaoFinal">0</span></p>
+            <button id="reiniciar">Jogar novamente</button>
+            <a href="./index.html">
+                <button id="sair">Sair</button>
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        const jogo = document.getElementById("jogo");
+        const submarino = document.getElementById("submarino");
+        const pontosTexto = document.getElementById("pontos");
+        const tempoTexto = document.getElementById("tempo");
+        const gameOver = document.getElementById("gameOver");
+        const pontuacaoFinal = document.getElementById("pontuacaoFinal");
+        const reiniciar = document.getElementById("reiniciar");
+
+        let audioContext;
+        let musicaTocando = false;
+        let intervaloMusica;
+        let etapaMusica = 0;
+
+        let submarinoX = 200;
+        let submarinoY = 300;
+
+        let velocidade = 5;
+
+        let pontos = 0;
+        let tempo = 30;
+
+        let jogoAtivo = true;
+
+        let teclas = {};
+
+        let direcaoX = 1;
+        let direcaoY = 0;
+
+        const quantidadeLixos = 5;
+        const quantidadePeixes = 5;
+
+        let lixos = [];
+        let peixes = [];
+        let bolhas = [];
+
+        const imagemBolha = "./jogo/bolha22.webp";
+        const quantidadeBolhas = 5;
+        const imagemSubmarino = "./jogo/submarino.webp";
+        const imagemLixo = "./jogo/lixo.png";
+        const imagemPeixe = "./jogo/peixe.jpg.jpeg";
+
+        submarino.src = imagemSubmarino;
+
+document.addEventListener("keydown", function(evento) {
+    teclas[evento.key.toLowerCase()] = true;
+
+    if (
+        evento.key.toLowerCase() === "w" ||
+        evento.key.toLowerCase() === "a" ||
+        evento.key.toLowerCase() === "s" ||
+        evento.key.toLowerCase() === "d"
+    ) {
+        iniciarMusica();
+    }
+});
+
+        document.addEventListener("keyup", function(evento) {
+            teclas[evento.key.toLowerCase()] = false;
+        });
+
+        function numeroAleatorio(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function criarLixo() {
+            const lixo = document.createElement("img");
+
+            lixo.classList.add("objeto");
+            lixo.src = imagemLixo;
+
+            lixo.style.left = numeroAleatorio(50, window.innerWidth - 100) + "px";
+            lixo.style.top = numeroAleatorio(100, window.innerHeight - 100) + "px";
+
+            jogo.appendChild(lixo);
+
+            lixos.push(lixo);
+        }
+
+        function criarPeixe() {
+            const peixe = document.createElement("img");
+
+            peixe.classList.add("peixe");
+            peixe.src = imagemPeixe;
+
+            const lado = Math.random() < 0.5 ? 1 : -1;
+
+            let peixeX;
+            let velocidadePeixe;
+
+            if (lado === 1) {
+                peixeX = -80;
+                velocidadePeixe = numeroAleatorio(1.5, 3.5);
+            } else {
+                peixeX = window.innerWidth + 80;
+                velocidadePeixe = numeroAleatorio(1.5, 3.5);
+            }
+
+            const peixeY = numeroAleatorio(100, window.innerHeight - 100);
+
+            peixe.style.left = peixeX + "px";
+            peixe.style.top = peixeY + "px";
+
+            if (lado === 1) {
+                peixe.style.transform = "scaleX(1)";
+            } else {
+                peixe.style.transform = "scaleX(-1)";
+            }
+
+            peixe.dataset.x = peixeX;
+            peixe.dataset.velocidade = velocidadePeixe;
+            peixe.dataset.direcao = lado;
+
+            jogo.appendChild(peixe);
+
+            peixes.push(peixe);
+        }
+
+        function criarBolha() {
+        const bolha = document.createElement("img");
+
+        bolha.classList.add("bolha");
+        bolha.src = imagemBolha;
+
+        const bolhaX = numeroAleatorio(50, window.innerWidth - 100);
+        const bolhaY = window.innerHeight + 60;
+        const velocidadeBolha = numeroAleatorio(1, 3);
+
+        bolha.style.left = bolhaX + "px";
+        bolha.style.top = bolhaY + "px";
+
+        bolha.dataset.x = bolhaX;
+        bolha.dataset.y = bolhaY;
+        bolha.dataset.velocidade = velocidadeBolha;
+
+        jogo.appendChild(bolha);
+
+        bolhas.push(bolha);
+        }
+        
+        function criarObjetos() {
+    for (let i = 0; i < quantidadeLixos; i++) {
+        criarLixo();
+    }
+
+    for (let i = 0; i < quantidadePeixes; i++) {
+        criarPeixe();
+    }
+
+    for (let i = 0; i < quantidadeBolhas; i++) {
+        criarBolha();
+    }
+}
+
+        function moverSubmarino() {
+            if (!jogoAtivo) {
+                return;
+            }
+
+            let movimentoX = 0;
+            let movimentoY = 0;
+
+            if (teclas["w"]) {
+                movimentoY -= 1;
+            }
+
+            if (teclas["s"]) {
+                movimentoY += 1;
+            }
+
+            if (teclas["a"]) {
+                movimentoX -= 1;
+            }
+
+            if (teclas["d"]) {
+                movimentoX += 1;
+            }
+
+            if (movimentoX !== 0 || movimentoY !== 0) {
+                const tamanhoMovimento = Math.sqrt(
+                    movimentoX * movimentoX +
+                    movimentoY * movimentoY
+                );
+
+                movimentoX /= tamanhoMovimento;
+                movimentoY /= tamanhoMovimento;
+
+                direcaoX = movimentoX;
+                direcaoY = movimentoY;
+
+                submarinoX += movimentoX * velocidade;
+                submarinoY += movimentoY * velocidade;
+            }
+
+            const limiteX = window.innerWidth - submarino.offsetWidth;
+            const limiteY = window.innerHeight - submarino.offsetHeight;
+
+            if (submarinoX < 0) {
+                submarinoX = 0;
+            }
+
+            if (submarinoX > limiteX) {
+                submarinoX = limiteX;
+            }
+
+            if (submarinoY < 0) {
+                submarinoY = 0;
+            }
+
+            if (submarinoY > limiteY) {
+                submarinoY = limiteY;
+            }
+
+            submarino.style.left = submarinoX + "px";
+            submarino.style.top = submarinoY + "px";
+
+            atualizarRotacao();
+        }
+
+        function atualizarRotacao() {
+            if (direcaoX === 0 && direcaoY === 0) {
+                return;
+            }
+
+            const angulo = Math.atan2(direcaoY, direcaoX) * 180 / Math.PI;
+
+            submarino.style.transform = "rotate(" + angulo + "deg)";
+        }
+
+        function moverPeixes() {
+            if (!jogoAtivo) {
+                return;
+            }
+
+            for (let i = peixes.length - 1; i >= 0; i--) {
+                const peixe = peixes[i];
+
+                let x = Number(peixe.dataset.x);
+                const velocidadePeixe = Number(peixe.dataset.velocidade);
+                const direcao = Number(peixe.dataset.direcao);
+
+                x += velocidadePeixe * direcao;
+
+                peixe.dataset.x = x;
+
+                peixe.style.left = x + "px";
+
+                if (direcao === 1 && x > window.innerWidth + 80) {
+                    peixe.remove();
+
+                    peixes.splice(i, 1);
+
+                    criarPeixe();
+                }
+
+                if (direcao === -1 && x < -80) {
+                    peixe.remove();
+
+                    peixes.splice(i, 1);
+
+                    criarPeixe();
+                }
+            }
+        }
+
+        function moverBolhas() {
+    if (!jogoAtivo) {
+        return;
+    }
+
+    for (let i = bolhas.length - 1; i >= 0; i--) {
+        const bolha = bolhas[i];
+
+        let y = Number(bolha.dataset.y);
+        const velocidadeBolha = Number(bolha.dataset.velocidade);
+
+        y -= velocidadeBolha;
+
+        bolha.dataset.y = y;
+
+        bolha.style.top = y + "px";
+
+        if (y < -60) {
+            bolha.remove();
+
+            bolhas.splice(i, 1);
+
+            criarBolha();
+        }
+    }
+}
+
+        function colidiu(objeto) {
+            const submarinoEsquerda = submarinoX;
+            const submarinoDireita = submarinoX + submarino.offsetWidth;
+            const submarinoTopo = submarinoY;
+            const submarinoBaixo = submarinoY + submarino.offsetHeight;
+
+            const objetoEsquerda = objeto.offsetLeft;
+            const objetoDireita = objeto.offsetLeft + objeto.offsetWidth;
+            const objetoTopo = objeto.offsetTop;
+            const objetoBaixo = objeto.offsetTop + objeto.offsetHeight;
+
+            return (
+                submarinoEsquerda < objetoDireita &&
+                submarinoDireita > objetoEsquerda &&
+                submarinoTopo < objetoBaixo &&
+                submarinoBaixo > objetoTopo
+            );
+        }
+
+        function verificarColisoesLixos() {
+            for (let i = lixos.length - 1; i >= 0; i--) {
+                if (colidiu(lixos[i])) {
+                    lixos[i].remove();
+
+                    lixos.splice(i, 1);
+
+                    pontos += 5;
+
+                    atualizarPontuacao();
+
+                    criarLixo();
+                }
+            }
+        }
+
+        function verificarColisoesPeixes() {
+            for (let i = peixes.length - 1; i >= 0; i--) {
+                if (colidiu(peixes[i])) {
+                    peixes[i].remove();
+
+                    peixes.splice(i, 1);
+
+                    pontos -= 10;
+
+                    atualizarPontuacao();
+
+                    criarPeixe();
+                }
+            }
+        }
+
+        function atualizarPontuacao() {
+            pontosTexto.textContent = pontos;
+        }
+
+        function atualizarTempo() {
+            if (!jogoAtivo) {
+                return;
+            }
+
+            tempo--;
+
+            tempoTexto.textContent = tempo;
+
+            if (tempo <= 0) {
+                finalizarJogo();
+            }
+        }
+
+function finalizarJogo() {
+    jogoAtivo = false;
+
+    pararMusica();
+
+    pontuacaoFinal.textContent = pontos;
+
+    gameOver.style.display = "flex";
+}
+
+        function reiniciarJogo() {
+            lixos.forEach(function(lixo) {
+                lixo.remove();
+            });
+
+            peixes.forEach(function(peixe) {
+                peixe.remove();
+            });
+
+            lixos = [];
+            peixes = [];
+
+            submarinoX = 200;
+            submarinoY = 300;
+
+            pontos = 0;
+            tempo = 30;
+
+            direcaoX = 1;
+            direcaoY = 0;
+
+            jogoAtivo = true;
+
+            pontosTexto.textContent = pontos;
+            tempoTexto.textContent = tempo;
+
+            gameOver.style.display = "none";
+
+            submarino.style.left = submarinoX + "px";
+            submarino.style.top = submarinoY + "px";
+            submarino.style.transform = "rotate(0deg)";
+
+            criarObjetos();
+        }
+
+function loop() {
+    moverSubmarino();
+
+    moverPeixes();
+
+    moverBolhas();
+
+    verificarColisoesLixos();
+
+    verificarColisoesPeixes();
+
+    requestAnimationFrame(loop);
+}
+
+function iniciarMusica() {
+    if (musicaTocando) {
+        return;
+    }
+
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    musicaTocando = true;
+    etapaMusica = 0;
+
+    tocarMusica();
+}
+
+function tocarNota(frequencia, duracao, volume, tipo, atraso) {
+    const oscilador = audioContext.createOscillator();
+    const ganho = audioContext.createGain();
+
+    oscilador.type = tipo;
+    oscilador.frequency.value = frequencia;
+
+    ganho.gain.setValueAtTime(0, audioContext.currentTime + atraso);
+    ganho.gain.linearRampToValueAtTime(
+        volume,
+        audioContext.currentTime + atraso + 0.05
+    );
+
+    ganho.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioContext.currentTime + atraso + duracao
+    );
+
+    oscilador.connect(ganho);
+    ganho.connect(audioContext.destination);
+
+    oscilador.start(audioContext.currentTime + atraso);
+    oscilador.stop(audioContext.currentTime + atraso + duracao);
+}
+
+function tocarMusica() {
+    if (!musicaTocando) {
+        return;
+    }
+
+    const melodia = [
+        261.63,
+        329.63,
+        392.00,
+        329.63,
+        293.66,
+        349.23,
+        440.00,
+        349.23,
+        261.63,
+        329.63,
+        392.00,
+        493.88,
+        440.00,
+        392.00,
+        329.63,
+        293.66
+    ];
+
+    const baixos = [
+        130.81,
+        130.81,
+        146.83,
+        146.83,
+        164.81,
+        164.81,
+        130.81,
+        130.81
+    ];
+
+    const nota = melodia[etapaMusica % melodia.length];
+    const baixo = baixos[etapaMusica % baixos.length];
+
+    tocarNota(nota, 0.7, 0.08, "sine", 0);
+
+    tocarNota(nota * 2, 0.35, 0.025, "triangle", 0.35);
+
+    tocarNota(baixo, 1.2, 0.06, "sine", 0);
+
+    etapaMusica++;
+
+    intervaloMusica = setTimeout(tocarMusica, 700);
+}
+
+function pararMusica() {
+    musicaTocando = false;
+
+    clearTimeout(intervaloMusica);
+
+    if (audioContext) {
+        audioContext.close();
+        audioContext = null;
+    }
+}
+
+        reiniciar.addEventListener("click", reiniciarJogo);
+
+        criarObjetos();
+
+        submarino.style.left = submarinoX + "px";
+        submarino.style.top = submarinoY + "px";
+
+        setInterval(atualizarTempo, 1000);
+
+        loop();
+    </script>
+
+</body>
+</html>
