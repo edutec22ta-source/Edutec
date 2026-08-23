@@ -11,7 +11,7 @@ body {
   min-height: 100vh;
 }
 
-/* ================= HEADER ================= */
+
 .header {
   display: flex;
   align-items: center;
@@ -52,7 +52,7 @@ body {
   border-bottom: 2px solid #38d39f;
 }
 
-/* ================= LAYOUT PRINCIPAL ================= */
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -65,7 +65,7 @@ body {
   margin-bottom: 32px;
 }
 
-/* ================= GRID DE CARDS ================= */
+
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -108,27 +108,4 @@ body {
   font-size: 14px;
   font-weight: 600;
   color: #ffffff;
-}
-
-/* ================= RESPONSIVO ================= */
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .header, .container {
-    padding-left: 24px;
-    padding-right: 24px;
-  }
-}
-
-@media (max-width: 550px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .nav {
-    gap: 16px;
-    font-size: 12px;
-  }
 }
